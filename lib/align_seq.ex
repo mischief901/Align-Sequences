@@ -1,6 +1,6 @@
 defmodule AlignSeq do
   
-  def main(args) do
+  def main(args) do # parses CLI and sets options if applicable
     {options, file_path, _} = OptionParser.parse(args, switches: 
             [match: :integer, mismatch: :integer, gap: :integer])
 
@@ -21,6 +21,7 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     |> IO.puts
   end
 
+  # removes the FASTA-formatted descriptions, separating sequences by newline.
   defp remove_descriptions([], acc), do: acc
   defp remove_descriptions([head | rest], ""=acc) do
     if String.first(head) == ">" do
@@ -37,8 +38,9 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     end
   end
 
-  def align(string, {_match_score, _mismatch_score, _gap_score}=scores\\{4, -2, -2}) do
+  def align(string, {_match_score, _mismatch_score, _gap_score}=scores) do
 
+    #splits sequence into a list of lists of each sequence letter.
     [sequence1, sequence2] =
     string
     |> String.split
@@ -50,6 +52,7 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     |> format
   end
 
+  # format places each sequence into a format string separated by a newline
   defp format({_score, aligned_seq1, aligned_seq2}) do
     """
     #{aligned_seq1}
@@ -57,8 +60,11 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     """
   end
 
-  #%{x => %{y => {score, letter_x, letter_y}}}
-
+  # %{x => %{y => {score, letter_x, letter_y}}}
+  # Creates a nested map to simulate an array. The first map stores by the x-axis
+  # for the length of sequence 1 and the nested map stores by the y-axis for the 
+  # length of sequence 2. The nested map stores a tuple with the score of the 
+  # array at that point and the sequence of both sequences up to that array point.
   defp create_scored_matrix(matrix, sequence1, sequence2, scores) do
     create_scored_matrix(matrix, sequence1, sequence2, 0, 0, scores)
   end
@@ -80,6 +86,10 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     cross_diag(matrix, sequence1, sequence2, x, y, scores)
   end
 
+
+  # the cross_diag function scores the array by crossing the array in the {i,0} 
+  # to {0,j} manner. This allows for the array to access the scores of the previous
+  # locations in the array.
   defp cross_diag(matrix, _sequence1, _sequence2, 0=x, 0=y, _scores) do
     Map.put(matrix, x, %{y => {0, "", ""}})
   end
@@ -138,6 +148,8 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     matrix
   end
 
+  # returns the match score if the letters match and the mismatch score if the
+  # letters don't match.
   defp match(match, match, {match_score, _mismatch, _gap}), do: match_score
   defp match(_mis1, _mis2, {_match, mismatch_score, _gap}), do: mismatch_score
 end
