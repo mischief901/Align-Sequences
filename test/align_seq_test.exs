@@ -5,6 +5,7 @@ defmodule AlignSeqTest do
   use ExUnit.Case
   doctest AlignSeq
 
+  @tag :pending
   test "one length string" do
     input = 
     """
@@ -51,7 +52,7 @@ defmodule AlignSeqTest do
     assert AlignSeq.align(input) == output
   end
 
-  #@tag :pending
+  @tag :pending
   test "align short sequences with one mismatch" do
     input = 
     """
@@ -61,7 +62,7 @@ defmodule AlignSeqTest do
     assert AlignSeq.align(input) == input
   end
 
-  @tag :pending
+  #@tag :pending
   test "align short sequences with one gap" do
     input = 
     """
