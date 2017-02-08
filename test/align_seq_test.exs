@@ -5,6 +5,8 @@ defmodule AlignSeqTest do
   use ExUnit.Case
   doctest AlignSeq
 
+  @scoring {4, -2, -2}
+
   @tag :pending
   test "one length string" do
     input = 
@@ -17,7 +19,7 @@ defmodule AlignSeqTest do
     A
     A
     """
-    assert AlignSeq.align(input) == output
+    assert AlignSeq.align(input, @scoring) == output
   end
 
   @tag :pending
@@ -33,7 +35,7 @@ defmodule AlignSeqTest do
     TCCAAATA
     TCGCAAATA
     """
-    assert AlignSeq.align(input) == output
+    assert AlignSeq.align(input, @scoring) == output
   end
 
   @tag :pending
@@ -49,7 +51,7 @@ defmodule AlignSeqTest do
     TCCAAATAGAC
     TCGCAAATATAC
     """
-    assert AlignSeq.align(input) == output
+    assert AlignSeq.align(input, @scoring) == output
   end
 
   @tag :pending
@@ -59,7 +61,7 @@ defmodule AlignSeqTest do
     ACTG
     ACGG
     """
-    assert AlignSeq.align(input) == input
+    assert AlignSeq.align(input, @scoring) == input
   end
 
   #@tag :pending
@@ -74,7 +76,7 @@ defmodule AlignSeqTest do
     ACTG
     AC-G
     """
-    assert AlignSeq.align(input) == output
+    assert AlignSeq.align(input, @scoring) == output
   end
 
   @tag :pending
@@ -84,7 +86,7 @@ defmodule AlignSeqTest do
     ACTG
     ACTG
     """
-    assert AlignSeq.align(input) == input
+    assert AlignSeq.align(input, @scoring) == input
   end
 
   @tag :pending
@@ -101,6 +103,12 @@ defmodule AlignSeqTest do
     AGTG-CCAGT--T-A-AGACTATAGTGGAATGAAGGTT-A--ATTCATTCTCA-C-AAACTAAT---ACCCTGCTT
     """
 
-    assert AlignSeq.align(input) == output
+    assert AlignSeq.align(input, @scoring) == output
   end
+
+  input = 
+  """
+  
+
+  """
 end

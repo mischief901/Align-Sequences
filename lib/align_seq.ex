@@ -10,15 +10,18 @@ defmodule AlignSeq do
         {options[:match], options[:mismatch], options[:gap]}
       true ->
         IO.puts("Scoring defaults to Match: 4, Mismatch: -2, Gap: -2
-Change the scoring by setting all three parameters like: --match 4 --mismatch -2 --gap -2\n")
+Change the scoring by setting all three parameters such as: --match 4 --mismatch -2 --gap -2\n\n")
         {4, -2, -2}
     end
 
-    File.read!(file_path)
+    alignment = File.read!(file_path)
     |> String.split("\n")
     |> remove_descriptions("")
     |> align(scoring)
-    |> IO.puts
+    IO.puts(alignment)
+    File.write("my.output", alignment)
+    IO.puts("Aligned sequences are also saved in the my.output file in the same directory.\n
+The my.output file will be overwritten next time this program is run.")
   end
 
   # removes the FASTA-formatted descriptions, separating sequences by newline.
@@ -61,10 +64,11 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
   end
 
   # %{x => %{y => {score, letter_x, letter_y}}}
-  # Creates a nested map to simulate an array. The first map stores by the x-axis
-  # for the length of sequence 1 and the nested map stores by the y-axis for the 
-  # length of sequence 2. The nested map stores a tuple with the score of the 
-  # array at that point and the sequence of both sequences up to that array point.
+  # Creates a nested map to simulate an array. Maps are constant time access.
+  # The first map stores by the x-axis for the length of sequence 1 and the 
+  # nested map stores by the y-axis for the length of sequence 2. The nested map
+  # stores a tuple with the score of the array at that point and the sequence up
+  # to that point in the array.
   defp create_scored_matrix(matrix, sequence1, sequence2, scores) do
     create_scored_matrix(matrix, sequence1, sequence2, 0, 0, scores)
   end
@@ -87,7 +91,7 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
   end
 
 
-  # the cross_diag function scores the array by crossing the array in the {i,0} 
+  # The cross_diag function scores the array by crossing the array in the {i,0} 
   # to {0,j} manner. This allows for the array to access the scores of the previous
   # locations in the array.
   defp cross_diag(matrix, _sequence1, _sequence2, 0=x, 0=y, _scores) do
@@ -98,7 +102,7 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
     {score, previous_x, previous_y} = get_in(matrix, [x, y-1])
     letter_y = Enum.at(sequence2, y-1, "-")
     new_pos = %{y => {gap + score, previous_x <> "-", previous_y <> letter_y}}
-    Map.update(matrix, 0, new_pos, &Map.merge(&1, new_pos))
+    Map.update(matrix, x, new_pos, &Map.merge(&1, new_pos))
   end
 
   defp cross_diag(matrix, sequence1, sequence2, x, 0=y, {_match, _mismatch, gap}=scores) do
@@ -139,7 +143,7 @@ Change the scoring by setting all three parameters like: --match 4 --mismatch -2
       max == left ->
         %{y => {gap + score, previous_x <> letter_x, previous_y <> "-"}}
     end
-    # |> IO.inspect
+
     Map.update(matrix, x, new_pos, &Map.merge(&1, new_pos))
     |> cross_diag(sequence1, sequence2, x-1, y+1, scores)
   end
